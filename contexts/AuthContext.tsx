@@ -1,7 +1,7 @@
 import Router from 'next/router';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { api } from '../services/api';
-import { setCookie } from 'nookies';
+import { setCookie, parseCookies } from 'nookies';
 
 type Credentials = {
   email: string;
@@ -30,6 +30,19 @@ function AuthProvider({ children }: Props) {
   const [user, setUser] = useState<User>({} as User);
   const isAuthenticated = !!user;
 
+  useEffect(() => {
+    // -- as the name of the cookie has a '.' dot, for destructuring it you have to place it inside quotes
+    const { 'next-auth-jwt.token': token } = parseCookies();
+
+    if (token) {
+      // -- route to get user information
+      api.get('/me').then(response => {
+        const { email, permissions, roles } = response.data;
+        setUser({ email, permissions, roles });
+      });
+    }
+  }, []);
+
   async function signIn({ email, password }: Credentials) {
     try {
       const response = await api.post('/sessions', { email, password });
@@ -50,6 +63,9 @@ function AuthProvider({ children }: Props) {
         path: '/'
       });
       setUser({ email, permissions, roles });
+      // -- setting headers Authorization after the first login, to avoid 401 errors if there isn't any cookies
+      api.defaults.headers['Authorization'] = `Bearer ${token}`;
+
       Router.push('/dashboard');
     } catch (error) {
       console.log('error', error);
