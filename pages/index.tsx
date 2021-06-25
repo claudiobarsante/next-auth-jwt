@@ -3,6 +3,8 @@ import Image from 'next/image';
 import { FormEvent, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import styles from '../styles/Home.module.css';
+import { GetServerSideProps } from 'next';
+import { WithSSRGuest } from '../utils/withSSRGuest';
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -55,3 +57,24 @@ export default function Home() {
     </div>
   );
 }
+
+/**
+ * Next.js expects that getServerSideProps is a function
+ * for example, if you that the result is a list of users you have to specify ont the parameter
+ * export const getServerSideProps: GetServerSideProps = WithSSRGuest<{users:string[]}>(
+  async context => {
+    return {
+      props: {
+        users:[]
+      }
+    };
+  }
+);
+ */
+export const getServerSideProps: GetServerSideProps = WithSSRGuest(
+  async context => {
+    return {
+      props: {}
+    };
+  }
+);
