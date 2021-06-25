@@ -4,9 +4,14 @@ import setupApiClient from './../services/api';
 import { useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import { withSSRAuth } from '../utils/withSSRAuth';
+import { usePermissionsAndRoles } from '../hooks/usePermissionsAndRoles';
 
 export default function Dashboard() {
   const { user } = useAuth();
+
+  const userCanSeeMetrics = usePermissionsAndRoles({
+    permissions: ['metrics.list']
+  });
 
   useEffect(() => {
     api
@@ -15,7 +20,12 @@ export default function Dashboard() {
       .catch(error => console.log(error));
   }, []);
 
-  return <h1>Dashboard page !!!{user?.email}</h1>;
+  return (
+    <>
+      <h1>Dashboard page !!!{user?.email}</h1>
+      {userCanSeeMetrics && <div>Métricas</div>}
+    </>
+  );
 }
 
 export const getServerSideProps: GetServerSideProps = withSSRAuth(
