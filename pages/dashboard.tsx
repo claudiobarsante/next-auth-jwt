@@ -1,17 +1,14 @@
 import { useAuth } from '../contexts/AuthContext';
 import { api } from './../services/apiClient';
 import setupApiClient from './../services/api';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import { withSSRAuth } from '../utils/withSSRAuth';
 import { usePermissionsAndRoles } from '../hooks/usePermissionsAndRoles';
+import { CanSee } from '../components/CanSee';
 
 export default function Dashboard() {
   const { user } = useAuth();
-
-  const userCanSeeMetrics = usePermissionsAndRoles({
-    permissions: ['metrics.list']
-  });
 
   useEffect(() => {
     api
@@ -23,7 +20,9 @@ export default function Dashboard() {
   return (
     <>
       <h1>Dashboard page !!!{user?.email}</h1>
-      {userCanSeeMetrics && <div>Métricas</div>}
+      <CanSee permissions={['metrics.list']}>
+        <div>Métricas</div>
+      </CanSee>
     </>
   );
 }
