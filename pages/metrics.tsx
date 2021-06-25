@@ -1,27 +1,12 @@
-import { useAuth } from '../contexts/AuthContext';
-import { api } from './../services/apiClient';
 import setupApiClient from './../services/api';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { GetServerSideProps } from 'next';
 import { withSSRAuth } from '../utils/withSSRAuth';
-import { CanSee } from '../components/CanSee';
 
-export default function Dashboard() {
-  const { user } = useAuth();
-
-  useEffect(() => {
-    api
-      .get('/me')
-      .then(response => console.log(response))
-      .catch(error => console.log(error));
-  }, []);
-
+export default function Metrics() {
   return (
     <>
-      <h1>Dashboard page !!!{user?.email}</h1>
-      <CanSee permissions={['metrics.list']}>
-        <div>Métricas</div>
-      </CanSee>
+      <h1>Metrics</h1>
     </>
   );
 }
