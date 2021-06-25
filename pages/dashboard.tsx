@@ -7,7 +7,7 @@ import { withSSRAuth } from '../utils/withSSRAuth';
 import { CanSee } from '../components/CanSee';
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     api
@@ -19,6 +19,7 @@ export default function Dashboard() {
   return (
     <>
       <h1>Dashboard page !!!{user?.email}</h1>
+      <button onClick={() => signOut()}>Sign out</button>
       <CanSee permissions={['metrics.list']}>
         <div>Métricas</div>
       </CanSee>
@@ -35,5 +36,5 @@ export const getServerSideProps: GetServerSideProps = withSSRAuth(
       props: {}
     };
   },
-  { permissions: ['metrics.lis'], roles: ['administrator'] }
+  { permissions: ['metrics.list'], roles: ['administrator'] }
 );

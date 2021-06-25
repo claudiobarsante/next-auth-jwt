@@ -16,6 +16,7 @@ type User = {
 
 type AuthContextData = {
   signIn: (credentials: Credentials) => Promise<void>;
+  signOut: () => void;
   user: User;
   isAuthenticated: boolean;
 };
@@ -26,15 +27,38 @@ type Props = {
 
 const AuthContext = createContext({} as AuthContextData);
 
+/**BroadcastChannel is used to broadcast any info between pages, tabs, in the same domain
+ * So, the idea it's when you sign out and you have many tabs open then if you sign out
+ * from one page automatically all others pages or tabs will be sign out too
+ */
+let authChannel: BroadcastChannel;
+
 export function signOut() {
   destroyCookie(undefined, 'next-auth-jwt.token');
   destroyCookie(undefined, 'next-auth-jwt.refreshToken');
+
+  authChannel.postMessage('signOut');
+
   Router.push('/');
 }
 
 function AuthProvider({ children }: Props) {
   const [user, setUser] = useState<User>({} as User);
   const isAuthenticated = !!user;
+
+  useEffect(() => {
+    authChannel = new BroadcastChannel('auth');
+    authChannel.onmessage = message => {
+      switch (message.data) {
+        case 'signOut':
+          signOut();
+          break;
+
+        default:
+          break;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     // -- as the name of the cookie has a '.' dot, for destructuring it you have to place it inside quotes
@@ -85,7 +109,7 @@ function AuthProvider({ children }: Props) {
   }
 
   return (
-    <AuthContext.Provider value={{ signIn, isAuthenticated, user }}>
+    <AuthContext.Provider value={{ signIn, signOut, isAuthenticated, user }}>
       {children}
     </AuthContext.Provider>
   );

@@ -14,6 +14,8 @@ export function usePermissionsAndRoles({
 
   if (!isAuthenticated) return false;
 
+  console.log('user dentro do validade ', user, isAuthenticated);
+
   const userHasValidPermissions = validateUserPermissionsAndRoles({
     permissions,
     roles,
